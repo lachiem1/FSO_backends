@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 app.use(express.json());
 
-const phonebookData = [
+let phonebookData = [
     { 
       "id": 1,
       "name": "Arto Hellas", 
@@ -45,7 +45,15 @@ app.get('/info', (request, response) => {
     const currTime = new Date();
     console.log('currTime: ', currTime)
 
-    response.send(`<p>Phonebook has info for ${numEntries} people.</p>${currTime}<p>`)
+    response.send(`<p>Phonebook has info for ${numEntries} people.</p><p>${currTime}</p>`)
+});
+
+app.delete('/api/persons/:id', (request, response) => {
+    const id = Number(request.params.id);
+    // remove the person object with the same id as in request.params via filtering
+    phonebookData = phonebookData.filter(p => p.id !== id);
+
+    response.status(204).end();
 });
 
 const PORT = 3001;
