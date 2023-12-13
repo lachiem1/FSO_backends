@@ -29,6 +29,15 @@ app.get('/api/persons', (request, response) => {
     response.json(phonebookData);
 });
 
+app.get('/api/persons/:id', (request, response) => {
+    const id = Number(request.params.id);
+    // console.log('id: ', id, typeof id)
+    const person = phonebookData.find(p => p.id === id);
+    // console.log('person: ', person)
+
+    person ? response.json(person) : response.status(404).end();
+});
+
 app.get('/info', (request, response) => {
     const numEntries = Number(phonebookData.length);
     console.log('numEnt: ', numEntries)
