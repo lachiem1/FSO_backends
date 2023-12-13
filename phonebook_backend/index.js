@@ -56,6 +56,50 @@ app.delete('/api/persons/:id', (request, response) => {
     response.status(204).end();
 });
 
+const generateId = () => {
+    return Math.floor(Math.random() * (500 - 5 + 1) + 5);
+};
+
+app.post('/api/persons', (request, response) => {
+    const body = request.body;
+
+    // check if name already exists in phonebook:
+    let nameAlreadyExists;
+    if (body.name) {
+        nameAlreadyExists = phonebookData.some((entry) => entry.name.toLowerCase() === body.name.toLowerCase());
+        console.log('nameAlreadyExists: ', nameAlreadyExists)
+    }
+    else {
+        nameAlreadyExists = false;
+    }
+
+    if (!body.name) {
+        return response.status(400).json({
+            error: 'name-missing'
+        });
+    }
+    else if (!body.number) {
+        return response.status(400).json({
+            error: 'number-missing'
+        })
+    }
+    else if (nameAlreadyExists) {
+        return response.status(400).json({
+            error: 'name-already-exists'
+        });
+    }
+
+    const newPerson = {
+        id: generateId(),
+        name: body.name,
+        number: body.number
+    };
+
+    phonebookData = phonebookData.concat(newPerson);
+
+    response.json(newPerson);
+});
+
 const PORT = 3001;
 app.listen(PORT);
 console.log(`Server running on port ${PORT}`);
