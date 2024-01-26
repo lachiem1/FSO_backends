@@ -20,3 +20,13 @@ Content-Type: application/json
     "name": "",
     "number": ""
 }
+
+###
+
+POST https://summer-babe.fly.dev/
+Content-Type: application/json
+
+{
+    "name": "deploy",
+    "number": "120123"
+}
