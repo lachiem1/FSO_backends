@@ -5,7 +5,8 @@ if (process.argv.length !== 5) {
     process.exit(1);
 }
 const [ nit1 , nit2 , password , contactName , contactNum ] = process.argv;
-console.log(contactName, contactNum)
+// console.log(contactName, contactNum)
+
 const url = `mongodb+srv://lachiem1:${password}@mongodb-learning.tvusz9q.mongodb.net/phonebookApp?retryWrites=true&w=majority`;
 
 mongoose.set('strictQuery', false);

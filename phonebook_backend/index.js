@@ -8,44 +8,32 @@ app.use(express.json());
 app.use(morgan('tiny'));
 app.use(cors());
 
-let phonebookData = [
-    { 
-      "id": 1,
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": 2,
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": 3,
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": 4,
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-];
+require('dotenv').config();
+
+const Person = require('./models/person');
 
 app.get('/', (request, response) => {
     response.send('<h1>Hello World!</h1>');
 });
 
 app.get('/api/persons', (request, response) => {
-    response.json(phonebookData);
+    Person.find({}).then(people => {
+
+        response.json(people);
+    });
 });
 
 app.get('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id);
-    // console.log('id: ', id, typeof id)
-    const person = phonebookData.find(p => p.id === id);
-    // console.log('person: ', person)
+    // const id = Number(request.params.id);
+    // // console.log('id: ', id, typeof id)
+    // const person = phonebookData.find(p => p.id === id);
+    // // console.log('person: ', person)
 
-    person ? response.json(person) : response.status(404).end();
+    // person ? response.json(person) : response.status(404).end();
+
+    Person.findById(request.params.id).then(person => {
+        response.json(person);
+    });
 });
 
 app.get('/info', (request, response) => {
@@ -66,22 +54,19 @@ app.delete('/api/persons/:id', (request, response) => {
     response.status(204).end();
 });
 
-const generateId = () => {
-    return Math.floor(Math.random() * (500 - 5 + 1) + 5);
-};
 
 app.post('/api/persons', (request, response) => {
     const body = request.body;
 
     // check if name already exists in phonebook:
-    let nameAlreadyExists;
-    if (body.name) {
-        nameAlreadyExists = phonebookData.some((entry) => entry.name.toLowerCase() === body.name.toLowerCase());
-        console.log('nameAlreadyExists: ', nameAlreadyExists)
-    }
-    else {
-        nameAlreadyExists = false;
-    }
+    // let nameAlreadyExists;
+    // if (body.name) {
+    //     nameAlreadyExists = phonebookData.some((entry) => entry.name.toLowerCase() === body.name.toLowerCase());
+    //     console.log('nameAlreadyExists: ', nameAlreadyExists)
+    // }
+    // else {
+    //     nameAlreadyExists = false;
+    // }
 
     if (!body.name) {
         return response.status(400).json({
@@ -93,27 +78,23 @@ app.post('/api/persons', (request, response) => {
             error: 'number-missing'
         })
     }
-    else if (nameAlreadyExists) {
-        return response.status(400).json({
-            error: 'name-already-exists'
-        });
-    }
+    // else if (nameAlreadyExists) {
+    //     return response.status(400).json({
+    //         error: 'name-already-exists'
+    //     });
+    // }
 
-    const newPerson = {
-        id: generateId(),
+    const person = new Person({
         name: body.name,
-        number: body.number
-    };
-
-    phonebookData = phonebookData.concat(newPerson);
+        number: body.number,
+    });
     
-    response.json(newPerson);
+    person.save().then(savedPerson => {
+        response.json(savedPerson);
+    });
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
   });
-
-// app.listen(PORT);
-// console.log(`Server running on port ${PORT}`);
