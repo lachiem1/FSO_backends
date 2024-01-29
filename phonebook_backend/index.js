@@ -23,78 +23,98 @@ app.get('/api/persons', (request, response) => {
     });
 });
 
-app.get('/api/persons/:id', (request, response) => {
-    // const id = Number(request.params.id);
-    // // console.log('id: ', id, typeof id)
-    // const person = phonebookData.find(p => p.id === id);
-    // // console.log('person: ', person)
-
-    // person ? response.json(person) : response.status(404).end();
-
-    Person.findById(request.params.id).then(person => {
-        response.json(person);
-    });
+app.get('/api/persons/:id', (request, response, next) => {
+    Person.findById(request.params.id)
+        .then(person => {
+            if (person) {
+                response.json(person);
+            }
+            else {
+                response.status(404).end();
+            }
+        })
+        .catch(error => next(error));
 });
 
-app.get('/info', (request, response) => {
-    const numEntries = Number(phonebookData.length);
-    console.log('numEnt: ', numEntries)
+app.get('/info', (request, response, next) => {
+    let numEntries;
+
+    Person.find({})
+        .then(numPeople => {
+            // console.log('numPeople variable: ', numPeople.length, typeof numPeople)
+            numEntries = numPeople.length;
+            // console.log('\n\nnumEntries: ', numEntries);
+            response.send(`<p>Phonebook has info for ${numEntries} people.</p><p>${currTime}</p>`)
+        })
+        .catch(error => next(error));
 
     const currTime = new Date();
     console.log('currTime: ', currTime)
-
-    response.send(`<p>Phonebook has info for ${numEntries} people.</p><p>${currTime}</p>`)
 });
 
-app.delete('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id);
-    // remove the person object with the same id as in request.params via filtering
-    phonebookData = phonebookData.filter(p => p.id !== id);
-
-    response.status(204).end();
+app.delete('/api/persons/:id', (request, response, next) => {
+    Person.findByIdAndDelete(request.params.id)
+        .then(result => {
+            response.status(204).end()
+        })
+        .catch(error => next(error))
 });
-
 
 app.post('/api/persons', (request, response) => {
     const body = request.body;
-
-    // check if name already exists in phonebook:
-    // let nameAlreadyExists;
-    // if (body.name) {
-    //     nameAlreadyExists = phonebookData.some((entry) => entry.name.toLowerCase() === body.name.toLowerCase());
-    //     console.log('nameAlreadyExists: ', nameAlreadyExists)
-    // }
-    // else {
-    //     nameAlreadyExists = false;
-    // }
-
     if (!body.name) {
-        return response.status(400).json({
-            error: 'name-missing'
-        });
+        return response.status(400).json({error: 'name-missing'});
     }
     else if (!body.number) {
-        return response.status(400).json({
-            error: 'number-missing'
-        })
+        return response.status(400).json({error: 'number-missing'});
     }
-    // else if (nameAlreadyExists) {
-    //     return response.status(400).json({
-    //         error: 'name-already-exists'
-    //     });
-    // }
 
-    const person = new Person({
+    const newPerson = new Person({
         name: body.name,
         number: body.number,
     });
-    
-    person.save().then(savedPerson => {
+
+    console.log('newPerson: ', newPerson);
+
+    newPerson.save().then(savedPerson => {
         response.json(savedPerson);
-    });
+    }); 
+});
+
+app.put('/api/persons/:id', (request, response, next) => {
+    const body = request.body;
+
+    const person = {
+        name: body.name,
+        number: body.number,
+    };
+
+    Person.findByIdAndUpdate(request.params.id, person, {new: true})
+        .then(updatedPerson => {
+            response.json(updatedPerson)
+        })
+        .catch(error => next(error));
 });
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
   });
+
+const unknownEndpoint = (request, response) => {
+response.status(404).send({error: 'unknown endpoint'});
+};
+
+app.use(unknownEndpoint);
+
+const errorHandler = (error, request, response, next) => {
+console.error(error.message)
+
+if (error.name === 'CastError') {
+    return response.status(400).send({error: 'malformatted id'});
+}
+
+next(error);
+};
+
+app.use(errorHandler);
