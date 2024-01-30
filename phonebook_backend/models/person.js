@@ -20,7 +20,23 @@ const personSchema = new mongoose.Schema({
         minLength: 3,
         required: true
     },
-    number: Number, 
+    number: {
+        type: String,
+        validate: {
+            validator: function(val) {
+                const phoneNumberParts = val.split('-');
+                let phoneNumLength = 0;
+                phoneNumberParts.forEach(element => {
+                    phoneNumLength += element.length;
+                });
+                console.log(phoneNumLength)
+                console.log('parts test: ', phoneNumberParts.length, '\n\n')
+                
+                return phoneNumLength >= 8 && phoneNumberParts.length === 2;
+            }
+        },
+        required: true
+    }, 
 });
 
 personSchema.set('toJSON', {
