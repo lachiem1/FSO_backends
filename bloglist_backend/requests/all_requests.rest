@@ -1,0 +1,14 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+{
+    "title": "The Tale of Jeff",
+    "author": "MuhNumAJeff",
+    "url": "https://www.imdb.com/title/tt27550760/",
+    "likes": "99909090000"
+}
+
+###
+
+GET http://localhost:3003/api/blogs
+
+###
