@@ -25,4 +25,31 @@ const favouriteBlog = (listOfBlogs) => {
     return mostPopularBlogObject;
 };
 
-module.exports = { dummy, totalLikes, favouriteBlog };
+const mostBlogs = (listOfBlogs) => {
+    let authorNumbers = {};
+    listOfBlogs.forEach((blog) => {
+        const authorName = blog["author"];
+
+        if (!authorNumbers[authorName]) {
+            const numEntries = listOfBlogs.filter(
+                (b) => b["author"] === authorName,
+            ).length;
+            authorNumbers[`${authorName}`] = Number(numEntries);
+        }
+    });
+    console.log("authorNumbersObject: ", authorNumbers);
+
+    let maxKey;
+    let maxVal = 0;
+
+    for (const [key, val] of Object.entries(authorNumbers)) {
+        if (val > 0) {
+            maxKey = key;
+            maxVal = val;
+        }
+    }
+
+    return { author: maxKey, blogs: maxVal };
+};
+
+module.exports = { dummy, totalLikes, favouriteBlog, mostBlogs };

@@ -93,3 +93,13 @@ describe("most popular blog based on likes", () => {
         });
     });
 });
+
+describe("author with most blog posts", () => {
+    test("using data with multiple blogs", () => {
+        const result = listHelper.mostBlogs(multipleBlogs);
+        expect(result).toEqual({
+            author: "Robert C. Martin",
+            blogs: 3,
+        });
+    });
+});
