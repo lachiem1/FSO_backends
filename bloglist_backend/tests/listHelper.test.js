@@ -103,3 +103,13 @@ describe("author with most blog posts", () => {
         });
     });
 });
+
+describe("author with most cumulative likes", () => {
+    test("using data with multiple blogs", () => {
+        const result = listHelper.mostLikes(multipleBlogs);
+        expect(result).toEqual({
+            author: "Edsger W. Dijkstra",
+            likes: 17,
+        });
+    });
+});

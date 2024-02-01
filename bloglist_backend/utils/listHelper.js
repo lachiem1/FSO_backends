@@ -43,7 +43,7 @@ const mostBlogs = (listOfBlogs) => {
     let maxVal = 0;
 
     for (const [key, val] of Object.entries(authorNumbers)) {
-        if (val > 0) {
+        if (val > maxVal) {
             maxKey = key;
             maxVal = val;
         }
@@ -52,4 +52,30 @@ const mostBlogs = (listOfBlogs) => {
     return { author: maxKey, blogs: maxVal };
 };
 
-module.exports = { dummy, totalLikes, favouriteBlog, mostBlogs };
+const mostLikes = (listOfBlogs) => {
+    let authorLikes = {};
+    listOfBlogs.forEach((blog) => {
+        const authorName = blog["author"];
+
+        if (!authorLikes[authorName]) {
+            authorLikes[authorName] = blog["likes"];
+        } else {
+            authorLikes[authorName] += blog["likes"];
+        }
+    });
+    console.log("authorLikesObject: ", authorLikes);
+
+    let maxKey;
+    let maxVal = 0;
+
+    for (const [key, val] of Object.entries(authorLikes)) {
+        if (val > maxVal) {
+            maxKey = key;
+            maxVal = val;
+        }
+    }
+
+    return { author: maxKey, likes: maxVal };
+};
+
+module.exports = { dummy, totalLikes, favouriteBlog, mostBlogs, mostLikes };
